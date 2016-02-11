@@ -107,7 +107,7 @@ int main()
 
     Mat indices;
     Mat dists;
-    int k=3;
+    int k=2;
 
     clock_t begin2 = clock();
     vocab.search(queryDescriptors, indices, dists, k);
@@ -115,6 +115,27 @@ int main()
     double query_time = double(end2 - begin2) / CLOCKS_PER_SEC;
     cout.precision(5);
     cout<<"query time "<<query_time<<endl;
+
+    std::vector<int> indicesVec(indices.rows*indices.cols);
+
+    if (indices.isContinuous())
+    {
+        indicesVec.assign((int*)indices.datastart, (int*)indices.dataend);
+    }
+
+    cout<<"indicesVec.size() "<<indicesVec.size()<<endl;
+
+    /// Process Nearest Neighbor Distance Ratio
+    float nndRatio = 0.8;
+
+    for(int i=0; i<indicesVec.size(); i++)
+    {
+        if(dists.at<float>(i,0)<nndRatio*dists.at<float>(i,1))
+        {
+            cout<<"indicesVec["<<i<<"] "<<indicesVec[i]<<"  image labels "<<labels[indicesVec[i]]<<endl;
+        }
+    }
+
 
     return 0;
 }
